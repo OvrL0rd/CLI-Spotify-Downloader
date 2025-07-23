@@ -14,5 +14,11 @@ fi
 
 pip install --upgrade pip
 pip install requests
+pip install python-dotenv
+pip install spotdl
+
+# Download ffmpeg using spotdl
+spotdl --download-ffmpeg
+
 
 echo "Packages installed inside the virtual environment."
