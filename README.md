@@ -33,19 +33,18 @@ The import file is in json. Below is the structure necessary to import songs.
 ### Installation
 Installation is simple. Clone the repo in your desired directory and run the setup script.
 
-    git clone "https://github.com/OvrL0rd/CLI-Spotify-Downloader"
+    1. git clone https://github.com/OvrL0rd/CLI-Spotify-Downloader
+    2. cd CLI-Spotify-Downloader
 
 #### Setup Script
 The setup script creates a virtual enviornment and installs dependencies where you can run Spotify-DWN.
 
 In order to run the setup script make it executable and run it using:
 
-    1. chmod +x setup.sh
-    2. ./setup.sh
+    3. chmod +x setup.sh
+    4. ./setup.sh
 
+Once the setup script has successfully installed the dependencies. Use the following command to activate the venv to run the script.
 
-#### Bash Alias
-In order to call the script for ease of access add an alias to your .bashrc to call the script if you desire. Or just run the script in your venv.
-
-    alias activate_spotify-DWN_venv='source /path/to/venv/bin/activate'
-    alias run_myscript='activate_spotify-DWN_venv && python /path/to/script.py'
+    5. source venv/bin/activate
+    6. python3 CLI-Spotify-DWN.py
