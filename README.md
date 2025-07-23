@@ -48,3 +48,6 @@ Once the setup script has successfully installed the dependencies. Use the follo
 
     5. source venv/bin/activate
     6. python3 CLI-Spotify-DWN.py
+
+#### Credit
+Spotdl can be found [here](https://github.com/spotDL/spotify-downloader)
