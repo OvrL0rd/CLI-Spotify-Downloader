@@ -33,7 +33,7 @@ The import file is in json. Below is the structure necessary to import songs.
 ### Installation
 Installation is simple. Clone the repo in your desired directory and run the setup script.
 
-    git clone "ENTER URL HERE"
+    git clone "https://github.com/OvrL0rd/CLI-Spotify-Downloader"
 
 #### Setup Script
 The setup script creates a virtual enviornment and installs dependencies where you can run Spotify-DWN.
