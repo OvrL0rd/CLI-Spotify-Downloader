@@ -9,8 +9,8 @@ This script searches for (using Spotify's API) and downloads songs (using SpotDL
 ### Spotify API
 This script relies on Spotify API tokens. There are two credentials that are needed from the user before the script can run.
 
-    1. Client ID
-    2. Client Secret
+    a. Client ID
+    b. Client Secret
 
 The script will prompt on first run to input these and you can edit them at any time. The keys are stored in the **.env** file.
 
