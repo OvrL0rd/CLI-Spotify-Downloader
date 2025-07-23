@@ -1,0 +1,8 @@
+{
+  "download_path": "/path/to/your/download/folder",
+  "songs": [
+    {"song_name": "Song Name", "artist_name": "Artist Name"},
+    {"song_name": "Song Name", "artist_name": "Artist Name"},
+    {"song_name": "Song Name", "artist_name": "Artist Name"}
+  ]
+}
