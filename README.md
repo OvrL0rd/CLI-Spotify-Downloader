@@ -1,5 +1,5 @@
 ## CLI-Spotify-Downloader
-This script searches for (using spotify's API) and downloads songs (using spotDL) to a folder structure like so:
+This script searches for (using Spotify's API) and downloads songs (using SpotDL) to a folder structure like so:
 
     Root Folder (Folder specified to download to):
     L Artist Name
