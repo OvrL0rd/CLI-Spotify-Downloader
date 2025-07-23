@@ -33,7 +33,7 @@ The import file is in json. Below is the structure necessary to import songs.
 ### Installation
 Installation is simple. Clone the repo in your desired directory and run the setup script.
 
-    1. git clone https://github.com/OvrL0rd/CLI-Spotify-Downloader
+    1. git clone https://github.com/w1l238/CLI-Spotify-Downloader
     2. cd CLI-Spotify-Downloader
 
 #### Setup Script
