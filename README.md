@@ -22,12 +22,12 @@ The import file is in json. Below is the structure necessary to import songs.
 **Note:** The script will run through all data in the "songs" array listed.
     
     {
-    "download_path": "/path/to/your/download/folder",
-    "songs": [
+      "download_path": "/path/to/your/download/folder",
+      "songs": [
         {"song_name": "Song Name", "artist_name": "Artist Name"},
         {"song_name": "Song Name", "artist_name": "Artist Name"},
         {"song_name": "Song Name", "artist_name": "Artist Name"}
-    ]
+      ]
     }
 
 ### Installation
