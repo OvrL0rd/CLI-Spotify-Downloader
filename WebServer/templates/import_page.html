@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CLI-Spotify-Downloader Web</title>
+    <!-- <script src="{{ url_for('static', filename='js/script.js') }}"></script> -->
+  </head>
+  <body>
+    <div class="bar" id="top-bar">
+      <h2 id="Title">Spotify Downloader</h2>
+    </div>
+     <form id="download_Form" method="post" action="/import">
+      <div class="input-group" id="bottom-row">
+        <h3 id="import_text">File Import</h3>
+        <input name="import_Path" type="text" size="55" placeholder="Specify json file path (full path)" required />
+     </div>
+     <button type="submit" class="btn-download">Download</button>
+     </form>
+     
+
+  <div class="terminal-wrapper">
+    <div id="terminal"></div>
+    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/import_style.css') }}" />
+  
+    <script>
+      const term = new Terminal({
+        cursorBlink: false,
+        disableStdin: true,  // disable terminal input
+        cursorStyle: 'block',
+        cols: 80
+      });
+      term.open(document.getElementById('terminal'));
+
+      const socket = io();
+
+      socket.on('stdout', function(msg) {
+        console.log("Got stdout:", msg.data)
+        term.write(msg.data);
+      });
+
+      // Listen for 'download_complete'
+      socket.on('download_complete', function(msg) {
+        addFlashMessage('message', msg.message)
+      });
+
+      // Listen for 'download_error'
+      socket.on('download_error', function(msg) {
+        addFlashMessage('error', msg.message)
+      });
+
+
+
+      function addFlashMessage(category, message) {
+        const messagesDiv = document.getElementById('messages'); // Grab messages div
+
+        // Create <li> element
+        const li = document.createElement('li');
+        li.className = category; // Set class name
+        li.textContent = message; // set message name
+
+        // FInd or create <ul> to hold messages
+        let ul = messagesDiv.querySelector('ul');
+        if (!ul) {
+          ul = document.createElement('ul');
+          messagesDiv.appendChild(ul);
+        }
+
+        ul.appendChild(li);
+      }
+
+
+    </script>
+  </div>
+  
+
+
+    <div id="messages">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul>
+          {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+    </div>
+  
+  
+  </body>
+
+
+  <!-- <div id="progress-container" style="width: 100%; background-color: #555; border-radius: 8px; height: 24px; margin: 1rem 0; display: none;">
+    <div id="progress-bar" style="width: 0%; height: 100%; background-color: #4caf50; border-radius: 8px; text-align: center; color: white; line-height: 24px; font-weight: bold;">0%</div>
+  </div> -->
+
+  <!-- html code for messages using flask -->
+  <!-- <div id="messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="messages">
+          {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  </div>
+</html> -->
