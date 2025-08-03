@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CLI-Spotify-Downloader Web</title>
+    <!-- <script src="{{ url_for('static', filename='js/script.js') }}"></script> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/search_style.css') }}" />
+  </head>
+    <body>
+      <div class="bar" id="top-bar">
+        <h2 id="Title">Spotify Downloader</h2>
+      </div>
+
+      <h3>Top {{ tracks|length }} results for "{{ query }}"</h1>
+        {% if tracks %}
+          <ul>
+          {% for track in tracks %}
+            <li>
+              <strong>{{ track.song }}</strong> by {{ track.artist }}<br/>
+              Album: {{ track.album }}<br/>
+              <a href="{{ track.url }}" target="_blank" rel="noopener noreferrer">Listen on Spotify</a>
+            </li>
+          {% endfor %}
+          </ul>
+        {% else %}
+          <p>No results found.</p>
+        {% endif %}
+    </body>
+</html>
+
+
+
+
+
+            
