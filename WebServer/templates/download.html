@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>CLI-Spotify-Downloader Web</title>
+</head>
+<body>
+    <div class="bar" id="top-bar">
+      <h2 id="Title">Spotify Downloader</h2>
+    </div>
+    <h2>Download Output</h2>
+    <div class="terminal-wrapper">
+    <div id="terminal"></div>
+    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+
+    <script>
+      const term = new Terminal({
+        cursorBlink: false,
+        disableStdin: true,  // disable terminal input
+        cursorStyle: 'block',
+        cols: 80
+      });
+      term.open(document.getElementById('terminal'));
+
+      const socket = io();
+
+      socket.on('stdout', function(msg) {
+        console.log("Got stdout:", msg.data)
+        term.write(msg.data);
+      });
+
+      // Listen for 'download_complete'
+      socket.on('download_complete', function(msg) {
+        addFlashMessage('message', msg.message)
+      });
+
+      // Listen for 'download_error'
+      socket.on('download_error', function(msg) {
+        addFlashMessage('error', msg.message)
+      });
+
+
+
+      function addFlashMessage(category, message) {
+        const messagesDiv = document.getElementById('messages'); // Grab messages div
+
+        // Create <li> element
+        const li = document.createElement('li');
+        li.className = category; // Set class name
+        li.textContent = message; // set message name
+
+        // FInd or create <ul> to hold messages
+        let ul = messagesDiv.querySelector('ul');
+        if (!ul) {
+          ul = document.createElement('ul');
+          messagesDiv.appendChild(ul);
+        }
+
+        ul.appendChild(li);
+      }
+
+
+    </script>
+  </div>
+</body>
+
