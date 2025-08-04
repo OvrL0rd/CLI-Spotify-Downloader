@@ -11,7 +11,7 @@ body {
   overflow-x: hidden;
 }
 
-h2, h3, text {
+h1, h2, h3, text {
   color: white;
 }
 
@@ -23,16 +23,11 @@ h2, h3, text {
   background-color: transparent;  /* or your desired bg */
 }
 
-
 #top-bar h2 {
   margin: 0;
   font-weight: bold;
   font-size: 1.5rem;
 }
-
-
-
-
 
 /* Text input style */
 input {
@@ -93,12 +88,9 @@ button.btn-search, button.btn-import {
   border-radius: 1rem;
 }
 
-
 form {
   background-color: transparent;
 }
-
-
 
 /* FLASH NOTIFICATIONS CSS */
 .error {
@@ -113,54 +105,4 @@ form {
   font-weight: bold;
   text-align: center;
   margin-bottom: 10px;
-}
-
-
-
-/* TERMINAL CSS */
-#terminal {
-  width: 800px;              /* Make it smaller, adjust as needed */
-  height: 400px;             /* Adjust height as needed */
-  border-radius: 0px;       /* Rounded corners */
-  overflow: hidden;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08); /* Optional, for depth */
-  background: black;       /* Optional: custom background color */
-  margin: 0 auto;            /* Center horizontally */
-  white-space: pre-wrap; /* Wrap long lines, respect whitespace */
-  word-break: break-word; /* Break long words if necessary */
-}
-
-.xterm .xterm-viewport {
-  overflow-x: hidden !important;    /* Hide horizontal scroll in viewport */
-  white-space: pre-wrap !important; /* Enable line wrapping */
-  word-break: break-word !important; /* Wrap long words */
-}
-
-/* Optional: to ensure canvases don’t overflow */
-.xterm-screen canvas {
-  max-width: 100% !important;
-}
-
-/* Example: Hide the blinking cursor */
-.xterm-cursor {
-  animation: none !important; /* disable blinking animation */
-}
-
-/* Example: Override helper textarea to remain hidden (redundant but safe) */
-.xterm-helper-textarea {
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
-
-/* Optionally, also make the actual terminal canvas rounded */
-.xterm-viewport, .xterm-screen canvas, .xterm {
-  border-radius: 0px !important;
-}
-
-/* For a div wrapper around the terminal div */
-.terminal-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 50vh; /*Adjust as needed for vertical centering */
 }

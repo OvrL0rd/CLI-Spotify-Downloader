@@ -11,7 +11,7 @@ body {
   overflow-x: hidden;
 }
 
-h2, h3, text {
+h1, h2, h3, text {
   color: white;
 }
 
@@ -56,24 +56,29 @@ input {
 
 /* Bottom row of the text input */
 #bottom-row {
-  padding-top: 10%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
   margin-bottom: 1rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 10%;
 }
 
 /* Download button style */
 button.btn-download {
-  display: block;
-  background-color: green;
-  color: white;
+  background-color: transparent;
+  fill: white;
   border-radius: 1rem;
   border: 0px;
-  padding: 8px;
-  margin-left: auto;
-  margin-right: auto;
+  height: 40px;
+  width: 40px;
 }
 
 button.btn-download:hover {
-  background-color: rgb(3, 162, 3);
+  background-color: rgb(3, 80, 162);
 }
 
 /* Example: Hide the blinking cursor */

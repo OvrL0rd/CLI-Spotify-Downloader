@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <title>CLI-Spotify-Downloader Web</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/download_style.css') }}" />
 </head>
 <body>
     <div class="bar" id="top-bar">
-      <h2 id="Title">Spotify Downloader</h2>
+      <h1 id="Title">Spotify Downloader</h1>
     </div>
     <h2>Download Output</h2>
     <div class="terminal-wrapper">
@@ -14,7 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/terminal_style.css') }}" />
 
     <script>
       const term = new Terminal({
@@ -61,9 +62,20 @@
 
         ul.appendChild(li);
       }
-
-
     </script>
   </div>
+
+  <div id="messages">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul>
+          {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+    </div>
+
 </body>
 
