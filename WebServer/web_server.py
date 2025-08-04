@@ -4,6 +4,11 @@
 # Project Link: 
 # Desc:
 #
+
+import eventlet
+import eventlet.wsgi
+from spotdl import Spotdl
+from urllib.parse import quote_plus
 from flask_socketio import SocketIO, emit
 from flask import Flask, request, render_template, redirect, url_for, flash, get_flashed_messages
 from dotenv import load_dotenv
@@ -14,11 +19,16 @@ import re
 import sys
 import json
 
+
+
+
 app = Flask(__name__)
 app.secret_key = "super_secret_key"
 
 # Start the socketIO server to provide terminal output in webviewer
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode='eventlet')
+
+
 
 # Get API token using Client ID and Client Secret
 # If found return the access token
@@ -61,7 +71,7 @@ def search_spotify_song(access_token, song_name, artist_name, limit):
     # If the response fails return 'None'
     if response.status_code != 200:
         print(f"Spotify API search failed: {response.status_code} {response.text}")
-        return None, None, None, None
+        return []
 
     # Store results in json
     results = response.json()
@@ -82,11 +92,14 @@ def search_spotify_song(access_token, song_name, artist_name, limit):
     # 
     track_list = [] # Dictionary of metadata for each track
     for track in tracks:
+        images = track["album"].get("images", [])
+        albumn_artwork_url = images[0]["url"] if images else None
         track_info = {
             "song": track["name"],
             "artist": ", ".join(artist["name"] for artist in track["artists"]),
             "album": track["album"]["name"],
-            "url": track["external_urls"]["spotify"]
+            "url": track["external_urls"]["spotify"],
+            "artwork": albumn_artwork_url
         }
         track_list.append(track_info) # Append to dictionary array
     # Print that the song was found
@@ -135,11 +148,33 @@ def sanitize_filename(name):
 
 # Download a specific song given the song's Spotify URL and the output path
 # If song is found then download it using spotdl
+# Falls back to yt-dlp if spotdl is unable to download due to audio provider error
 # If spotfl throws error then output that an error occured
 def download_spotify_url(spotify_url, output_folder):
     
+    # Returns the folder where this script is stored
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Split path into parts
+    parts = current_dir.split(os.sep)
+
+    # Find index of the target folder
+    try:
+        idx = parts.index('CLI-Spotify-Downloader')
+        # Rebuild path up to and including target folder
+        current_dir = os.sep.join(parts[:idx + 1])
+    except ValueError:
+        # 'CLI-Spotify-Downloader' not found, keep current_dir as is or handle error
+        pass
+    
+    # Local FFmpeg path in VENV (as spotdl doesn't place it correctly)
+    if os.name == 'nt': # Windows
+        ffmpeg_path = os.path.join(current_dir, 'venv', 'Scripts', 'ffmpeg.exe')
+    elif os.name != 'nt': # Default to linux if not windows
+        ffmpeg_path = os.path.join(current_dir, 'venv', 'bin', 'ffmpeg')
+
     # Spotdl's command to download a song using Spotify's song url
-    command = [sys.executable, "-m", "spotdl", spotify_url]
+    command = [sys.executable, "-u", "-m", "spotdl", spotify_url]
     
     # Set the output folder for spotdl to use
     if output_folder:
@@ -149,21 +184,53 @@ def download_spotify_url(spotify_url, output_folder):
     try:
         # spotdl has it's own output here showing a progress bar and if it downloaded successfully etc.
         # Using popen to capture stdout to pass to front end web viewer
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+        spotdl_process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
 
+
+        all_output = ""
+
+        # Output stdout to terminal and variable
         try:
             # read and show the command's stdout in real time
-            for line in process.stdout:
+            for line in spotdl_process.stdout:
                 # emit it back to the client (front end)
                 print(line, end='')
+                all_output += line
                 socketio.emit('stdout', {'data': line})
                 socketio.sleep(0)
 
             # Close the stream
-            process.stdout.close()
+            spotdl_process.stdout.close()
 
-            # get the return code
-            return_code = process.wait()
+            # Get the return code
+            return_code = spotdl_process.wait()
+
+            # # If Spotdl encounters a audioprovider error then download using yt-dlp using yt URL
+            # if "AudioProviderError" in all_output:
+            yt_URL = re.search(r"AudioProviderError:.*-\s*(https?://\S+)", all_output) # Extract the URL
+
+            if yt_URL:
+                fallback_url = yt_URL.group(1)
+                print(f"\nUsing fallback URL: {fallback_url}")
+
+                # Download using yt-dlp and convert to mp3 using ffmpeg
+                yt_dlp_command = ["yt-dlp", fallback_url, "-P", output_folder, "-x", "--audio-format", "mp3", "--ffmpeg-location", ffmpeg_path]
+                    
+                # Call yt-dlp and stream the output to the wbe viewer
+                yt_process = subprocess.Popen(yt_dlp_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+
+                # read and show the command's stdout in real time
+                for line in yt_process.stdout:
+                    # emit it back to the client (front end)
+                    print(line, end='')
+                    socketio.emit('stdout', {'data': line})
+                    socketio.sleep(0)
+
+                # Close the stream
+                yt_process.stdout.close()
+            
+                # Get the return code
+                return_code = yt_process.wait()
         
             # If the call fails show that to the front end
             if return_code != 0:
@@ -177,6 +244,11 @@ def download_spotify_url(spotify_url, output_folder):
             
 
     
+    
+
+
+
+
         
 
     # If the calling of the command throws an error print it
@@ -234,23 +306,20 @@ def index():
                 return redirect(url_for('index'))
             
             # Return the data
-            return render_template('results.html', tracks=song_data, query=f"{song_name} {artist_name}")
+            return render_template('results.html', tracks=valid_tracks, query=f"{song_name} {artist_name}")
         
         # If the song is unable to be searched for then print error and loop back to main menu
         except Exception as e:
             # Optionally log exception e somewhere for debugging
             flash("Error: Please check your API keys and try again.", "error")
             print(f"Error Message Code: {e}")
+            return redirect(url_for('index'))
 
         # Else throw error and tell user and return
         else:
             flash("Song not found. Please try a different title or artist.", "error")
             return redirect(url_for('index'))
 
-    # Revert variables back to empty
-    song_name = ""
-    artist_name = ""
-    download_path = ""
     return render_template("index.html")
 
 # Import page logic
@@ -329,7 +398,7 @@ def import_page():
 
 # Search results page logic
 @app.route('/results', methods=["GET", "POST"])
-def results_page():
+def results():
     
     # Store the download path from the user here
     #download_path = request.form.get("download_Path")
@@ -337,10 +406,35 @@ def results_page():
 
     # If the user selects to download a song
     if request.method == "POST":
-        return render_template("download.html") # PASS SELECTED DOWNLOAD SONG TO DOWNLOAD PAGE
+        
+        track_url = request.form.get("track_url")
+        if not track_url:
+            # Tell user that the URL can't be found
+            flash("Download URL can't be found/isn't provided", "error")
+            return render_template("results.html")
+        
+        return redirect(url_for('download_page') + f'?track_url={quote_plus(track_url)}')
 
-# @app.route('/download', methods=["GET"])
-# def download_page():
+@app.route('/download', methods=["GET"])
+def download_page():
+    track_url = request.args.get("track_url")
+    if not track_url:
+        # Flash error if no URL is provided
+        flash("No track URL provided to download", "error")
+        return render_template("download.html")
+
+    # Temp variable for testing download pathing
+    CONST_DOWNLOAD_PATH = "INPUT DOWNLOAD PLACE HERE"
+
+    os.makedirs(CONST_DOWNLOAD_PATH, exist_ok=True)
+
+    # Start download using socketio
+    # inside /download route
+    socketio.start_background_task(download_spotify_url, track_url, CONST_DOWNLOAD_PATH)
+    
+    # Emit to user that is takes time
+    flash("Download task started, please wait...", "message")
+    return render_template('download.html', track_url=track_url, download_path=CONST_DOWNLOAD_PATH)
 
 
 

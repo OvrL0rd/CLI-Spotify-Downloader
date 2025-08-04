@@ -114,9 +114,19 @@ def set_folder(givn_folder):
 
 # Download a specific song given the song's Spotify URL and the output path
 # If song is found then download it using spotdl
+# Falls back to yt-dlp if spotdl is unable to download due to audio provider error
 # If spotfl throws error then output that an error occured
 def download_spotify_url(spotify_url, output_folder):
     
+    # Returns the folder where this script is stored
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Local FFmpeg path in VENV (as spotdl doesn't place it correctly)
+    if os.name == 'nt': # Windows
+        ffmpeg_path = os.path.join(current_dir, 'venv', 'Scripts', 'ffmpeg.exe')
+    elif os.name != 'nt': # Default to linux if not windows
+        ffmpeg_path = os.path.join(current_dir, 'venv', 'bin', 'ffmpeg')
+
     # Spotdl's command to download a song using Spotify's song url
     command = [sys.executable, "-m", "spotdl", spotify_url]
     
@@ -127,11 +137,35 @@ def download_spotify_url(spotify_url, output_folder):
     # Call spotdl to download the song
     try:
         # spotdl has it's own output here showing a progress bar and if it downloaded successfully etc.
-        subprocess.check_call(command)
+        spotdl_process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+
+        all_output = ""
+
+        # Output stdout to terminal and variable
+        for line in spotdl_process.stdout:
+            print(line, end='')
+            all_output += line
+
+        # If Spotdl encounters a audioprovider error then download using yt-dlp using yt URL
+        if "AudioProviderError" in all_output:
+            yt_URL = re.search(r"AudioProviderError:.*-\s*(https?://\S+)", all_output) # Extract the URL
+
+            if yt_URL:
+                fallback_url = yt_URL.group(1)
+                print(f"\nUsing fallback URL: {fallback_url}")
+
+                # Download using yt-dlp and convert to mp3 using ffmpeg
+                yt_dlp_command = ["yt-dlp", fallback_url, "-P", output_folder, "-x", "--audio-format", "mp3", "--ffmpeg-location", ffmpeg_path]
+                
+                # Call yt-dlp
+                subprocess.run(yt_dlp_command)
 
     # If the calling of the command throws an error print it
     except subprocess.CalledProcessError as e: 
         print(f"Error during download: {e}")
+
+    except Exception as e:
+        print(f"Subprocess error: {e}")
 
 # Removes illegal characters to create a valid path for the OS
 # Returns the legal path that the OS can use
@@ -423,7 +457,7 @@ def main():
                     break
             
             # If the song is unable to be searched for then print error and loop back to main menu
-            except:
+            except Exception as e:
                 print_error_menu()
                 print("\nUnable to acquire token. Check your API keys.")
                 input("\nPress enter to continue...")
