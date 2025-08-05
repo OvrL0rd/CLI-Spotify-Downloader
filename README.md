@@ -11,7 +11,7 @@ Currently (as of 8/5/25) SpotDL is unable to download songs.
 YT-DLP is the fallback and requires ffmpeg to download songs correctly. Below are the steps to add ffmpeg:
 
 
-### Used the setup script
+### If installed via setup script
 If you ran the 'setup.sh' script ffmpeg is installed in the default path
 
 Linux:
@@ -30,7 +30,7 @@ Path on Windows:
 
     CLI-Spotify-Downloader\venv\scripts\
 
-### Didn't use script
+### Didn't use setup script
 If you didn't use the 'setup.sh' script you need to install ffmpeg using this command and move into the folder specified above
 
     spotdl --download-ffmpeg
