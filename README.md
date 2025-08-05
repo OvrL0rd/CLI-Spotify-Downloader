@@ -24,11 +24,11 @@ Move the file and place into your venv
 
 Path on Linux:
 
-    venv/bin/
+    CLI-Spotify-Downloader/venv/bin/
 
 Path on Windows:
 
-    venv/scripts/
+    CLI-Spotify-Downloader\venv\scripts\
 
 ### Didn't use script
 If you didn't use the 'setup.sh' script you need to install ffmpeg using this command and move into the folder specified above
