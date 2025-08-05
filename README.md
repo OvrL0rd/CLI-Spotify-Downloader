@@ -1,5 +1,5 @@
 # Dev Branch
-This is the dev for CLI-Spotify-Downloader. Current changes that are in place for this branch include:
+This is the dev branch for CLI-Spotify-Downloader. Current changes that are in place for this branch include:
 
 - [x] yt-dlp fallback
 - [ ] Web Server (work in progress)
