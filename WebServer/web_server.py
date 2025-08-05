@@ -1,16 +1,18 @@
 # Name: web_server.py
 # Quick Desc: Web server for Spotify DWN
-# Author: 
-# Project Link: 
+# Author: w1l238
+# Project Link: https://github.com/w1l238/CLI-Spotify-Downloader 
 # Desc:
-#
+#   Backend web server for Spotify Downloader
+#   Program is able to:
+#    - Search a song
+#    - Display results
+#    - Download a song
+#    - Import a file to mass download songs
+#    - Show live terminal results
+#    - Edit API keys and path(s)
 
-# Setup for web server lsit of dependencies:
-# 
-# flask
-# flask-socketio
-# eventlet
-
+# Import statements
 import eventlet
 import eventlet.wsgi
 from spotdl import Spotdl
@@ -25,11 +27,18 @@ import re
 import sys
 import json
 
+# Flask app setup
 app = Flask(__name__)
-app.secret_key = "super_secret_key"
+
+# Load key from .env
+app.secret_key = os.getenv("FLASK_SECRET")
 
 # Start the socketIO server to provide terminal output in webviewer
 socketio = SocketIO(app)
+
+#=================
+# Helper Functions
+#=================
 
 # Get API token using Client ID and Client Secret
 # If found return the access token
@@ -153,7 +162,7 @@ def sanitize_filename(name):
 # Falls back to yt-dlp if spotdl is unable to download due to audio provider error
 # If spotfl throws error then output that an error occured
 def download_spotify_url(spotify_url, output_folder):
-    
+        
     # Returns the folder where this script is stored
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -168,34 +177,6 @@ def download_spotify_url(spotify_url, output_folder):
     except ValueError:
         # 'CLI-Spotify-Downloader' not found, keep current_dir as is or handle error
         pass
-    
-    # Local FFmpeg path in VENV (as spotdl doesn't place it correctly)
-    if os.name == 'nt': # Windows
-        ffmpeg_path = os.path.join(current_dir, 'venv', 'Scripts', 'ffmpeg.exe')
-    elif os.name != 'nt': # Default to linux if not windows
-        ffmpeg_path = os.path.join(current_dir, 'venv', 'bin', 'ffmpeg')
-
-    
-    # Returns the folder where this script is stored
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Split path into parts
-    parts = current_dir.split(os.sep)
-
-    # Find index of the target folder
-    try:
-        idx = parts.index('CLI-Spotify-Downloader')
-        # Rebuild path up to and including target folder
-        current_dir = os.sep.join(parts[:idx + 1])
-    except ValueError:
-        # 'CLI-Spotify-Downloader' not found, keep current_dir as is or handle error
-        pass
-    
-    # Local FFmpeg path in VENV (as spotdl doesn't place it correctly)
-    if os.name == 'nt': # Windows
-        ffmpeg_path = os.path.join(current_dir, 'venv', 'Scripts', 'ffmpeg.exe')
-    elif os.name != 'nt': # Default to linux if not windows
-        ffmpeg_path = os.path.join(current_dir, 'venv', 'bin', 'ffmpeg')
 
     # Spotdl's command to download a song using Spotify's song url
     command = [sys.executable, "-u", "-m", "spotdl", spotify_url]
@@ -237,8 +218,25 @@ def download_spotify_url(spotify_url, output_folder):
                 fallback_url = yt_URL.group(1)
                 print(f"\nUsing fallback URL: {fallback_url}")
 
-                # Download using yt-dlp and convert to mp3 using ffmpeg
-                yt_dlp_command = ["yt-dlp", fallback_url, "-P", output_folder, "-x", "--audio-format", "mp3", "--ffmpeg-location", ffmpeg_path]
+                # Local FFmpeg path in VENV (as spotdl doesn't place it correctly)
+                print("[OS] Scanning Device Operating System...")
+                if os.name == 'nt': # Windows
+                    print("[OS] Device running Windows.")
+                    ffmpeg_path = os.path.join(current_dir, 'venv', 'Scripts', 'ffmpeg.exe')
+                elif os.name != 'nt': # Default to linux if not windows
+                    print("[OS] Device running UNIX")
+                    ffmpeg_path = os.path.join(current_dir, 'venv', 'bin', 'ffmpeg')
+
+                # Check if ffmpeg path is valid
+                if os.path.isfile(ffmpeg_path) or os.access(ffmpeg_path, os.X_OK):
+                    # Download using yt-dlp and convert to mp3 using ffmpeg
+                    yt_dlp_command = ["yt-dlp", fallback_url, "-P", output_folder, "-x", "--audio-format", "mp3", "--ffmpeg-location", ffmpeg_path]
+                else:
+                    # Warn user that ffmpeg isn't found
+                    print("[WARN] ffmpeg package not found. Continuing to download without ffmpeg...")
+           
+                    # Download using yt-dlp and attempt to convert to mp3 without ffmpeg 
+                    yt_dlp_command = ["yt-dlp", fallback_url, "-P", output_folder, "-x", "--audio-format", "mp3"]
                     
                 # Call yt-dlp and stream the output to the wbe viewer
                 yt_process = subprocess.Popen(yt_dlp_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
@@ -307,7 +305,11 @@ def parse_json_file(file_path):
         data = json.load(f)
     return data['download_path'], [(s['song_name'], s['artist_name']) for s in data['songs']]
 
+#====================
+# App Route Functions
+#====================
 
+# Backend logic for root page (index.html)
 @app.route("/", methods=["GET", "POST"])
 def index():
     
@@ -366,7 +368,7 @@ def index():
 
     return render_template("index.html")
 
-# Import page logic
+# Import page logic for import.html
 @app.route('/import', methods=["GET", "POST"])
 def import_page():
     
@@ -461,13 +463,14 @@ def import_page():
     return render_template("import_page.html")
 
 
-# Search results page logic
+# Search results page logic (results.html)
 @app.route('/results', methods=["GET", "POST"])
 def results():
     
     # Store the download path from the user here
     #download_path = request.form.get("download_Path")
 
+    
 
     # If the user selects to download a song
     if request.method == "POST":
@@ -477,14 +480,14 @@ def results():
         album = request.form.get("album")
         artist = request.form.get("artist")
 
-        # Temp variable for testing download pathing
-        CONST_DOWNLOAD_PATH = "/home/w1l/dev/download"
+        # Grab download path from .env
+        DWN_PATH = os.getenv("DWN_PATH")
 
         # Make path if not already there
-        os.makedirs(CONST_DOWNLOAD_PATH, exist_ok=True)
+        os.makedirs(DWN_PATH, exist_ok=True)
 
         try:
-            dest_path = set_folder(CONST_DOWNLOAD_PATH)
+            dest_path = set_folder(DWN_PATH)
         except OSError as e:
             flash(f"Failed to create or access folder: {e}")
 
@@ -508,6 +511,7 @@ def results():
 
         return redirect(url_for('download_page'))
 
+# Download backend logic (download.html)
 @app.route('/download', methods=["GET", "POST"])
 def download_page():
     song_info = session.get('song_info', [])
@@ -519,33 +523,120 @@ def download_page():
     
     return render_template('download.html', track_url=track_url)
 
+# Settings backend logic (settings.html)
+@app.route('/settings', methods=["GET", "POST"])
+def settings_page():
+
+    # Load env variables
+    load_dotenv(override=True)
+
+    # Spotify API Client Credentials
+    CLIENT_ID = os.getenv("CLIENT_ID")
+    CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+    DWN_PATH = os.getenv("DWN_PATH")
+    print(f"ID and Secret: {CLIENT_ID}, {CLIENT_SECRET}, Download Path: {DWN_PATH}")
+
+    # When user hits save button
+    if request.method == "POST":
+        # Store input as temp variables
+        form_id = request.form.get("client-id")
+        form_secret = request.form.get("client-secret")
+        form_dwn = request.form.get("dwn_path")
+
+        print(f"Form's ID: {form_id}")
+        print(f"Form Secret: {form_secret}")
+        print(f"Form Dwn Path: {form_dwn}")
+
+        # Check if form data differs from current env values
+        updated = False
+        new_values = {}
+
+        if form_id and form_id != CLIENT_ID:
+            new_values["CLIENT_ID"] = form_id
+            updated = True
+        if form_secret and form_secret != CLIENT_SECRET:
+            new_values["CLIENT_SECRET"] = form_secret
+            updated = True
+        if form_dwn and form_dwn != DWN_PATH:
+            new_values["DWN_PATH"] = form_dwn
+            updated = True
+
+        if updated:
+            # Read existing lines from .env
+            env_path = ".env"
+            lines = []
+            if os.path.exists(env_path):
+                with open(env_path, "r") as f:
+                    lines = f.readlines()
+            
+            # Update lines with new values or add them
+            for key, val in new_values.items():
+                found = False
+                for i, line in enumerate(lines):
+                    if line.strip().startswith(f"{key}="):
+                        lines[i] = f'{key}="{val}"\n'
+                        found = True
+                        break
+                if not found:
+                    lines.append(f'{key}="{val}"\n')
+            
+            # Write back updated .env
+            with open(env_path, "w") as f:
+                f.writelines(lines)
+
+            # Reload the environment variables after updating .env
+            load_dotenv(override=True)
+
+            # Optionally flash a message or redirect after saving
+            flash("Saved Successfully.", "message")
+
+        # Update current values for rendering after possible save
+        CLIENT_ID = form_id
+        CLIENT_SECRET = form_secret
+        DWN_PATH = form_dwn
+
+    # Render template, passing current values to pre-fill inputs
+    return render_template(
+        'settings.html',
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        dwn_path=DWN_PATH
+    )
+
+
+#=================
+# Socket IO routes
+# ================
+
+# Start download (passed from js in 'download.html')
 @socketio.on('start_download')
 def handle_start_download(data):
     
     # Grab track url passed in
     track_url = data.get("track_url")
-    download_path = data.get("download_path")
+
+    # If url found then proceed to download
     if track_url:
 
+        # Grab data passed in
         song = data.get("song")
         artist = data.get("artist")
         album = data.get("album")
+        download_path = data.get("download_path")
         
-
+        # Print artist, album, and song
         print(f"Artist: {artist}, Album: {album}, Song: {song}")
-
-        # Create folder structure using passed in variables
-        #song_path = create_song_folder_structure(download_path, artist, album, song)
 
         # Start download using socketio
         socketio.start_background_task(download_spotify_url, track_url, download_path)
         
         # Emit download task started
-        emit('download_message', {'message': 'Download task started, please wait...'})
+        flash("Download task started, please wait...", "message")
     else:
         # Emit download error no URL provided
-        emit('download_error', {'message': 'No track URL provided to start download'})
+        flash("No track URL provided to start download", "error")
 
+# Start loop download (called inside a for loop in import.html's JS)
 @socketio.on('start_loop_download')
 def handle_loop_download(data):
 
@@ -559,12 +650,17 @@ def handle_loop_download(data):
     socketio.start_background_task(download_spotify_url, track_url, download_path)
 
 
-# API to jsonify the song array
+# ==========
+# API Routes
+# ==========
+
+# API to jsonify all songs that querys from 'import.html'
 @app.route('/api/songs')
 def get_songs_api():
     songs = session.get('song_data_list', [])
     return jsonify(songs)
 
+# API to jsonify one song that querys from 'download.html' (which is the song selected from 'results.html')
 @app.route('/api/song_info')
 def get_song_info():
     song_info = session.get('song_info')
@@ -573,7 +669,7 @@ def get_song_info():
     else:
         return jsonify(song_info)
 
-# API to clear backend session
+# API to clear backend session (to prevent page reload on 'download.html/import.html'to rerun command)
 @app.route('/api/clear-songs', methods=['POST'])
 def clear_songs():
     print("Clearing import session...")
@@ -583,15 +679,3 @@ def clear_songs():
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)
-
-
-
-
-
-# TODO:
-# Create a Settings page that does the following:
-# - Edit API Keys
-# - Edit Download Path
-# - Edit website accent color??
-# Create a dark/light mode button
-# END (For now)
