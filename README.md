@@ -15,9 +15,11 @@ YT-DLP is the fallback and requires ffmpeg to download songs correctly. Below ar
 If you ran the 'setup.sh' script ffmpeg is installed in the default path
 
 Linux:
+    
     ~/.spotdl/ffpmeg
 
 Windows:
+    
     C:\user\$USERNAME\.spotdl\ffpmeg.exe
 
 Move the file and place into your venv
