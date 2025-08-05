@@ -3,18 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <title>CLI-Spotify-Downloader Web</title>
-    <!-- <script src="{{ url_for('static', filename='js/script.js') }}"></script> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/import_style.css') }}" />
   </head>
   <body>
     <div class="bar" id="top-bar">
-      <h2 id="Title">Spotify Downloader</h2>
+      <h1 id="Title">
+        <a href="{{ url_for('index') }}" id="Title-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M320 72C183 72 72 183 72 320C72 457 183 568 320 568C457 568 568 457 568 320C568 183 457 72 320 72zM420.7 436.9C416.5 436.9 413.9 435.6 410 433.3C347.6 395.7 275 394.1 203.3 408.8C199.4 409.8 194.3 411.4 191.4 411.4C181.7 411.4 175.6 403.7 175.6 395.6C175.6 385.3 181.7 380.4 189.2 378.8C271.1 360.7 354.8 362.3 426.2 405C432.3 408.9 435.9 412.4 435.9 421.5C435.9 430.6 428.8 436.9 420.7 436.9zM447.6 371.3C442.4 371.3 438.9 369 435.3 367.1C372.8 330.1 279.6 315.2 196.7 337.7C191.9 339 189.3 340.3 184.8 340.3C174.1 340.3 165.4 331.6 165.4 320.9C165.4 310.2 170.6 303.1 180.9 300.2C208.7 292.4 237.1 286.6 278.7 286.6C343.6 286.6 406.3 302.7 455.7 332.1C463.8 336.9 467 343.1 467 351.8C466.9 362.6 458.5 371.3 447.6 371.3zM478.6 295.1C473.4 295.1 470.2 293.8 465.7 291.2C394.5 248.7 267.2 238.5 184.8 261.5C181.2 262.5 176.7 264.1 171.9 264.1C158.7 264.1 148.6 253.8 148.6 240.5C148.6 226.9 157 219.2 166 216.6C201.2 206.3 240.6 201.4 283.5 201.4C356.5 201.4 433 216.6 488.9 249.2C496.7 253.7 501.8 259.9 501.8 271.8C501.8 285.4 490.8 295.1 478.6 295.1z"/></svg>
+        </a> Downloader
+      </h1>
+    </div>
+    <div id="import-container">
+      <h2 id="import_text">File Import</h2>
     </div>
      <form id="download_Form" method="post" action="/import">
       <div class="input-group" id="bottom-row">
-        <h3 id="import_text">File Import</h3>
         <input name="import_Path" type="text" size="55" placeholder="Specify json file path (full path)" required />
-     </div>
-     <button type="submit" class="btn-download">Download</button>
+        <button type="submit" class="btn-download">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M320 64C178.6 64 64 178.6 64 320C64 461.4 178.6 576 320 576C461.4 576 576 461.4 576 320C576 178.6 461.4 64 320 64zM308.7 451.3L204.7 347.3C200.1 342.7 198.8 335.8 201.2 329.9C203.6 324 209.5 320 216 320L272 320L272 224C272 206.3 286.3 192 304 192L336 192C353.7 192 368 206.3 368 224L368 320L424 320C430.5 320 436.3 323.9 438.8 329.9C441.3 335.9 439.9 342.8 435.3 347.3L331.3 451.3C325.1 457.5 314.9 457.5 308.7 451.3z"/></svg>
+        </button>
+      </div>
      </form>
      
 
@@ -23,12 +31,12 @@
     <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/import_style.css') }}" />
-  
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/terminal_style.css') }}" />
+
     <script>
       const term = new Terminal({
         cursorBlink: false,
-        disableStdin: true,  // disable terminal input
+        disableStdin: true,
         cursorStyle: 'block',
         cols: 80
       });
@@ -36,43 +44,62 @@
 
       const socket = io();
 
+      // Fetch songs dynamically after page load
+      async function fetchSongsAndStartDownloads() {
+        try {
+          const response = await fetch('/api/songs');
+          if (!response.ok) {
+            throw new Error(`Failed to fetch songs: ${response.statusText}`);
+          }
+          const songs_to_download = await response.json();
+
+          if (songs_to_download.length > 0) {
+            songs_to_download.forEach(song => {
+              socket.emit('start_loop_download', {
+                track_url: song.track_url,
+                download_path: song.download_path
+              });
+            });
+          }
+          // After triggering downloads, clear server-side session cache
+          await fetch('/api/clear-songs', { method: 'POST' });
+        } catch (error) {
+          console.error('Error fetching songs:', error);
+        }
+      }
+
+      socket.on('connect', () => {
+        fetchSongsAndStartDownloads();
+      });
+
       socket.on('stdout', function(msg) {
-        console.log("Got stdout:", msg.data)
+        console.log("Got stdout:", msg.data);
         term.write(msg.data);
       });
 
-      // Listen for 'download_complete'
       socket.on('download_complete', function(msg) {
-        addFlashMessage('message', msg.message)
+        addFlashMessage('message', msg.message);
       });
 
-      // Listen for 'download_error'
       socket.on('download_error', function(msg) {
-        addFlashMessage('error', msg.message)
+        addFlashMessage('error', msg.message);
       });
-
-
 
       function addFlashMessage(category, message) {
-        const messagesDiv = document.getElementById('messages'); // Grab messages div
-
-        // Create <li> element
+        const messagesDiv = document.getElementById('messages');
         const li = document.createElement('li');
-        li.className = category; // Set class name
-        li.textContent = message; // set message name
+        li.className = category;
+        li.textContent = message;
 
-        // FInd or create <ul> to hold messages
         let ul = messagesDiv.querySelector('ul');
         if (!ul) {
           ul = document.createElement('ul');
           messagesDiv.appendChild(ul);
         }
-
         ul.appendChild(li);
       }
-
-
     </script>
+
   </div>
   
 
