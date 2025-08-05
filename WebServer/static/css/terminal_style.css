@@ -1,0 +1,59 @@
+/* TERMINAL CSS */
+#terminal {
+  width: 800px;              /* Make it smaller, adjust as needed */
+  height: 400px;             /* Adjust height as needed */
+  border-radius: 1rem;       /* Rounded corners */
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08); /* Optional, for depth */
+  background: black;       /* Optional: custom background color */
+  margin: 0 auto;            /* Center horizontally */
+  padding-bottom: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);  /* Deeper shadow for better depth */
+  background-color: rgb(28, 28, 28);   /* Match page background, not full black */
+
+}
+
+/* Blue glow shadow on focus or active terminal */
+#terminal:focus-within, 
+#terminal.active {
+  box-shadow: 0 0 15px 3px rgb(3, 80, 162);
+  outline: none;
+}
+
+.xterm .xterm-viewport {
+  overflow-x: hidden !important;    /* Hide horizontal scroll in viewport */
+  border-radius: 1rem;
+  /* white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: normal;
+  max-width: 100%; */
+}
+
+/* Optional: to ensure canvases don’t overflow */
+.xterm-screen canvas {
+  max-width: 100% !important;
+}
+
+/* Example: Hide the blinking cursor */
+.xterm-cursor {
+  animation: none !important; /* disable blinking animation */
+}
+
+/* Example: Override helper textarea to remain hidden (redundant but safe) */
+.xterm-helper-textarea {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Optionally, also make the actual terminal canvas rounded */
+.xterm-viewport, .xterm-screen canvas, .xterm {
+  border-radius: 0px !important;
+}
+
+/* For a div wrapper around the terminal div */
+.terminal-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh; /*Adjust as needed for vertical centering */
+}

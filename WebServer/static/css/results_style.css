@@ -1,0 +1,161 @@
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 2em;
+  background-color: rgb(28, 28, 28);
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 {
+  color: white;
+}
+
+#Result-banner {
+  display: inline-block;
+  background-color: rgb(42, 42, 42);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);   /* soft shadow for depth */
+  border: 1px solid rgba(255, 255, 255, 0.1);  /* subtle light border */
+  border-radius: 1rem;
+  padding: 6px 1rem 6px 1rem;
+}
+
+#results-text-container {
+  display: flex;
+  width: fit-content;
+  max-width: 50%;
+  margin: 0rem auto 1rem auto;
+}
+
+#Title {
+  line-height: 42px;       /* match icon height */
+  display: inline-flex;    /* align children horizontally and vertically */
+  align-items: center;     /* vertically center items inside h1 */
+  gap: 0.3em;              /* space between icon and text */
+}
+
+#Title-icon {
+  display: inline-block;
+  fill: white;
+  width: 42px;
+  height: 42px;
+  background-color: transparent;
+  border: 0;
+  border-radius: 2rem;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+#Title-icon:hover {
+  background-color: rgb(3, 80, 162);   /* solid blue accent */
+  border-color: rgb(3, 80, 162);
+  box-shadow: 0 0 8px rgb(3, 80, 162); /* glowing blue shadow */
+  fill: white;                        /* keep svg white on hover */
+  color: white;
+}
+
+li {
+  position: relative;
+  background-color: rgb(42, 42, 42);
+  padding: 1rem;
+  margin: 1rem 0;          /* vertical margins only */
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;            /* full width of ul */
+  box-sizing: border-box; /* include padding/border in width */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+li:hover {
+  background-color: rgb(58, 58, 58);               /* Slightly lighter background */
+  border-color: rgba(3, 80, 162, 0.8);             /* Blue-ish border on hover */
+  box-shadow: 0 6px 12px rgba(3, 80, 162, 0.6);    /* Blue glow shadow */
+  transform: translateY(-4px);                      /* Subtle lift effect */
+  cursor: pointer;                                  /* Optional: pointer cursor for interactivity */
+}
+
+.track-info {
+  flex: 1; /* allow grow and shrink */
+}
+
+.artist-download {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.2rem;
+  flex-wrap: nowrap;
+}
+
+.download-form {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.album {
+  margin-top: 0.5rem;
+}
+
+button {
+  margin-right: 25px;
+  background-color: transparent;
+  border-radius: 2rem;
+  border: 0;
+  height: 48px;
+  width: 48px;
+  fill: white;
+  display: flex;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+button:hover {
+  background-color: rgb(3, 80, 162);   /* solid blue accent */
+  border-color: rgb(3, 80, 162);
+  box-shadow: 0 0 8px rgb(3, 80, 162); /* glowing blue shadow */
+  fill: white;                        /* keep svg white on hover */
+  color: white;
+}
+
+ul {
+  display: block;  
+  align-items: center;
+  width: 80%;
+  list-style: none;
+  color: white;
+  margin: 0 auto;
+  padding: 0;
+}
+
+#ul-frame {
+  /* CENTER CHILDREN IN FRAME */
+  display: flex;
+  justify-content: center;
+}
+
+img {
+  height: 128px;
+  width: auto;
+  vertical-align: middle;
+  margin-right: 10px;
+  border-radius: 1rem;
+  flex-shrink: 0; /* prevent image from shrinking */
+  max-width: 128px; /* optional, keep proportional size */
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  border: 1px solid transparent;           /* for smooth border transition */
+}
+
+/* Animate img on li hover */
+li:hover img {
+  border-color: rgb(3, 80, 162);            /* blue border on hover */
+  box-shadow: 0 0 8px rgb(3, 80, 162);      /* glowing blue shadow */
+  cursor: pointer;                          /* pointer cursor on hover */
+}
+
+/* For visual border for ul and li to help with centering */
+/* ul { border: 2px solid green; }
+li { border: 2px solid blue; } */

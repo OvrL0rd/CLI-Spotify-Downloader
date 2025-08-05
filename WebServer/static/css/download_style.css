@@ -1,0 +1,111 @@
+/*  
+* 
+*/
+
+/* Body style */
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 2em;
+  background-color: rgb(28, 28, 28);
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, text {
+  color: white;
+}
+
+h2 {
+    text-align: center;
+}
+
+#Title {
+  line-height: 42px;       /* match icon height */
+  display: inline-flex;    /* align children horizontally and vertically */
+  align-items: center;     /* vertically center items inside h1 */
+  gap: 0.3em;              /* space between icon and text */
+}
+
+#Title-icon {
+  display: inline-block;
+  fill: white;
+  width: 42px;
+  height: 42px;
+  background-color: transparent;
+  border: 0;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#Title-icon:hover {
+  background-color: rgb(3, 80, 162);
+  box-shadow: 0 0 8px rgb(3, 80, 162);
+}
+
+
+#top-bar {
+  display: flex;                  /* activate flex layout */
+  align-items: center;            /* vertically center items */
+  justify-content: space-between; /* push h2 left and button right */
+  padding: 0.5rem 1rem;           /* optional padding */
+  background-color: transparent;  /* or your desired bg */
+}
+
+#top-bar h2 {
+  margin: 0;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+button {
+  display: inline-block;
+  background-color: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 1rem;
+  padding: 0.5rem 1rem;
+}
+
+button:hover, button:focus {
+  background-color: rgb(3, 80, 162);
+  box-shadow: 0 0 8px rgb(3, 80, 162);
+  outline: none;
+}
+
+
+/* FLASH NOTIFICATIONS CSS */
+.error {
+  color: #ff5555;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.message {
+  color: #55ff55;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#download-container {
+  display: flex;
+  width: fit-content;
+  max-width: 50%;
+  margin: 1rem auto 0rem auto;
+}
+
+#download_text {
+  display: block;
+  text-align: center;
+  margin: 1rem auto;
+  padding-bottom: 1rem;
+  background-color: rgb(42, 42, 42);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);   /* soft shadow for depth */
+  border: 1px solid rgba(255, 255, 255, 0.1);  /* subtle light border */
+  border-radius: 1rem;
+  padding: 6px 1rem 6px 1rem;
+}

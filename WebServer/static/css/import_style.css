@@ -11,7 +11,33 @@ body {
   overflow-x: hidden;
 }
 
-h2, h3, text {
+h1, h2, h3, text {
+  color: white;
+}
+
+#Title {
+  line-height: 42px;       /* match icon height */
+  display: inline-flex;    /* align children horizontally and vertically */
+  align-items: center;     /* vertically center items inside h1 */
+  gap: 0.3em;              /* space between icon and text */
+}
+
+#Title-icon {
+  display: inline-block;
+  fill: white;
+  width: 42px;
+  height: 42px;
+  background-color: transparent;
+  border: 0;
+  border-radius: 2rem;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+#Title-icon:hover {
+  background-color: rgb(3, 80, 162);   /* solid blue accent */
+  border-color: rgb(3, 80, 162);
+  box-shadow: 0 0 8px rgb(3, 80, 162); /* glowing blue shadow */
+  fill: white;                        /* keep svg white on hover */
   color: white;
 }
 
@@ -34,21 +60,30 @@ h2, h3, text {
 /* Text input style */
 input {
   display: block;
-  margin-left: auto;
-  margin-right: auto;
-  align-items: center;
-  background-color: rgba(130, 130, 130, 0.7);
+  margin-right: 1rem;
+  text-align: left;
+  background-color: rgba(55, 55, 55, 0.9); /* subtle gray */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);   /* soft shadow for depth */
+  border: 1px solid rgba(255, 255, 255, 0.1);  /* subtle light border */
   color: white;
   border-radius: 1rem;
   border: 0px;
   padding: 8px 1rem 8px 1rem;
   font-size: medium;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus {
+  background-color: rgba(3, 80, 162, 0.7);   /* blue subtle background on focus */
+  box-shadow: 0 0 8px rgba(3, 80, 162, 0.8); /* glowing blue shadow */
+  border-color: rgb(3, 80, 162);
+  box-shadow: 0 0 8px rgb(3, 80, 162); /* glowing blue shadow */
+  outline: none;
 }
 
 /* Top row of the text input */
 #top-row {
   display: flex;
-  gap: 10px; /* space between inputs */
   justify-content: center;  /* center horizontally */
   width: 100%;              /* or specify max width */
   margin-bottom: 1.5rem;
@@ -56,24 +91,33 @@ input {
 
 /* Bottom row of the text input */
 #bottom-row {
-  padding-top: 10%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 1rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 5%;
 }
 
 /* Download button style */
 button.btn-download {
-  display: block;
-  background-color: green;
-  color: white;
+  background-color: transparent;
+  fill: white;
   border-radius: 1rem;
   border: 0px;
-  padding: 8px;
-  margin-left: auto;
-  margin-right: auto;
+  height: 40px;
+  width: 40px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 button.btn-download:hover {
-  background-color: rgb(3, 162, 3);
+  background-color: rgb(3, 80, 162);   /* solid blue accent */
+  border-color: rgb(3, 80, 162);
+  box-shadow: 0 0 8px rgb(3, 80, 162); /* glowing blue shadow */
+  fill: white;                        /* keep svg white on hover */
+  color: white;
 }
 
 /* Example: Hide the blinking cursor */
@@ -139,6 +183,22 @@ button.btn-download:hover {
   max-width: 100% !important;
 }
 
+
+#import-container {
+  display: flex;
+  width: fit-content;
+  max-width: 50%;
+  margin: 1rem auto 0rem auto;
+}
+
 #import_text {
-    text-align: center;
+  display: block;
+  text-align: center;
+  margin: 1rem auto;
+  padding-bottom: 1rem;
+  background-color: rgb(42, 42, 42);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);   /* soft shadow for depth */
+  border: 1px solid rgba(255, 255, 255, 0.1);  /* subtle light border */
+  border-radius: 1rem;
+  padding: 6px 1rem 6px 1rem;
 }
