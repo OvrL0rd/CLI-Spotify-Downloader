@@ -1,3 +1,10 @@
+# Dev Branch
+This is the dev for CLI-Spotify-Downloader. Current changes that are in place for this branch include:
+
+- [x] yt-dlp fallback
+- [ ] Web Server (work in progress)
+- [ ] Updated install scripts for windows/linux (in the works)
+
 # CLI-Spotify-Downloader
 This python script downloads songs to your machine in a folder structure (shown below). This script is great for automating the download process but also the organization of songs, artists, and albums using the folder structure.
 
