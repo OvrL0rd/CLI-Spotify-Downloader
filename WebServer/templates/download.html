@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>CLI-Spotify-Downloader Web</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/download_style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/download_style.css') }}" />
 </head>
 <body>
     <div class="bar" id="top-bar">
@@ -21,6 +22,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/terminal_style.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/terminal_style.css') }}" />
 
     <script>
@@ -104,6 +106,6 @@
         {% endif %}
       {% endwith %}
     </div>
-
+    
 </body>
 

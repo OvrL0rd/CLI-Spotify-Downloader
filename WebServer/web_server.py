@@ -150,8 +150,31 @@ def sanitize_filename(name):
 # Download a specific song given the song's Spotify URL and the output path
 # If song is found then download it using spotdl
 # Falls back to yt-dlp if spotdl is unable to download due to audio provider error
+# Falls back to yt-dlp if spotdl is unable to download due to audio provider error
 # If spotfl throws error then output that an error occured
 def download_spotify_url(spotify_url, output_folder):
+    
+    # Returns the folder where this script is stored
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Split path into parts
+    parts = current_dir.split(os.sep)
+
+    # Find index of the target folder
+    try:
+        idx = parts.index('CLI-Spotify-Downloader')
+        # Rebuild path up to and including target folder
+        current_dir = os.sep.join(parts[:idx + 1])
+    except ValueError:
+        # 'CLI-Spotify-Downloader' not found, keep current_dir as is or handle error
+        pass
+    
+    # Local FFmpeg path in VENV (as spotdl doesn't place it correctly)
+    if os.name == 'nt': # Windows
+        ffmpeg_path = os.path.join(current_dir, 'venv', 'Scripts', 'ffmpeg.exe')
+    elif os.name != 'nt': # Default to linux if not windows
+        ffmpeg_path = os.path.join(current_dir, 'venv', 'bin', 'ffmpeg')
+
     
     # Returns the folder where this script is stored
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -203,6 +226,35 @@ def download_spotify_url(spotify_url, output_folder):
             # Close the stream
             spotdl_process.stdout.close()
 
+            # Get the return code
+            return_code = spotdl_process.wait()
+
+            # # If Spotdl encounters a audioprovider error then download using yt-dlp using yt URL
+            # if "AudioProviderError" in all_output:
+            yt_URL = re.search(r"AudioProviderError:.*-\s*(https?://\S+)", all_output) # Extract the URL
+
+            if yt_URL:
+                fallback_url = yt_URL.group(1)
+                print(f"\nUsing fallback URL: {fallback_url}")
+
+                # Download using yt-dlp and convert to mp3 using ffmpeg
+                yt_dlp_command = ["yt-dlp", fallback_url, "-P", output_folder, "-x", "--audio-format", "mp3", "--ffmpeg-location", ffmpeg_path]
+                    
+                # Call yt-dlp and stream the output to the wbe viewer
+                yt_process = subprocess.Popen(yt_dlp_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+
+                # read and show the command's stdout in real time
+                for line in yt_process.stdout:
+                    # emit it back to the client (front end)
+                    print(line, end='')
+                    socketio.emit('stdout', {'data': line})
+                    socketio.sleep(0)
+
+                # Close the stream
+                yt_process.stdout.close()
+            
+                # Get the return code
+                return_code = yt_process.wait()
             # Get the return code
             return_code = spotdl_process.wait()
 
@@ -465,8 +517,6 @@ def download_page():
         flash("No track URL provided to download", "error")
         return render_template("download.html")
     
-    # Emit to user that is takes time
-    flash("Download task started, please wait...", "message")
     return render_template('download.html', track_url=track_url)
 
 @socketio.on('start_download')

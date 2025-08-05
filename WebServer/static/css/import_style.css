@@ -105,6 +105,8 @@ input:focus {
 button.btn-download {
   background-color: transparent;
   fill: white;
+  background-color: transparent;
+  fill: white;
   border-radius: 1rem;
   border: 0px;
   height: 40px;
