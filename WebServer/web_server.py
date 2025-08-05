@@ -478,7 +478,7 @@ def results():
         artist = request.form.get("artist")
 
         # Temp variable for testing download pathing
-        CONST_DOWNLOAD_PATH = "/home/w1l/dev/download"
+        CONST_DOWNLOAD_PATH = "PATH/TO/DOWNLOAD/HERE"
 
         # Make path if not already there
         os.makedirs(CONST_DOWNLOAD_PATH, exist_ok=True)
